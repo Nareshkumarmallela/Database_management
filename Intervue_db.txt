@@ -1,0 +1,624 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+-- -----------------------------------------------------
+-- Schema intervue_db
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema intervue_db
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `intervue_db` DEFAULT CHARACTER SET utf8mb3 ;
+USE `intervue_db` ;
+
+-- -----------------------------------------------------
+-- Table `intervue_db`.`candidates`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `intervue_db`.`candidates` (
+  `candidate_id` INT NOT NULL,
+  `first_name` VARCHAR(45) NULL DEFAULT NULL,
+  `last_name` VARCHAR(45) NULL DEFAULT NULL,
+  `email` VARCHAR(100) NULL DEFAULT NULL,
+  `phone_number` VARCHAR(15) NULL DEFAULT NULL,
+  `education` VARCHAR(45) NULL DEFAULT NULL,
+  `profile_status` VARCHAR(45) NULL DEFAULT NULL,
+  `address` VARCHAR(45) NULL DEFAULT NULL,
+  `region` VARCHAR(45) NULL DEFAULT NULL,
+  `city` VARCHAR(45) NULL DEFAULT NULL,
+  `zipcode` VARCHAR(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`candidate_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `intervue_db`.`client`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `intervue_db`.`client` (
+  `client_id` INT NOT NULL,
+  `name` VARCHAR(45) NULL DEFAULT NULL,
+  `email` VARCHAR(100) NULL DEFAULT NULL,
+  `phone_number` VARCHAR(15) NULL DEFAULT NULL,
+  `address` VARCHAR(45) NULL DEFAULT NULL,
+  `region` VARCHAR(45) NULL DEFAULT NULL,
+  `city` VARCHAR(45) NULL DEFAULT NULL,
+  `zipcode` VARCHAR(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`client_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `intervue_db`.`job_postings`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `intervue_db`.`job_postings` (
+  `job_id` INT NOT NULL,
+  `job_name` VARCHAR(100) NULL DEFAULT NULL,
+  `job_desc` VARCHAR(300) NULL DEFAULT NULL,
+  `positions_vacant` INT NULL DEFAULT NULL,
+  `status` VARCHAR(45) NULL DEFAULT NULL,
+  `client_satisfaction_rating` INT NULL DEFAULT NULL,
+  `client_id` INT NOT NULL,
+  PRIMARY KEY (`job_id`),
+  INDEX `fk_job_postings_client_idx` (`client_id` ASC) VISIBLE,
+  CONSTRAINT `fk_job_postings_client`
+    FOREIGN KEY (`client_id`)
+    REFERENCES `intervue_db`.`client` (`client_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `intervue_db`.`applications`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `intervue_db`.`applications` (
+  `candidate_id` INT NOT NULL,
+  `job_id` INT NOT NULL,
+  `application_id` INT NOT NULL,
+  `application_status` VARCHAR(100) NULL DEFAULT NULL,
+  PRIMARY KEY (`application_id`),
+  INDEX `fk_candidates_has_job_postings_job_postings1_idx` (`job_id` ASC) VISIBLE,
+  INDEX `fk_candidates_has_job_postings_candidates1_idx` (`candidate_id` ASC) VISIBLE,
+  CONSTRAINT `fk_candidates_has_job_postings_candidates1`
+    FOREIGN KEY (`candidate_id`)
+    REFERENCES `intervue_db`.`candidates` (`candidate_id`),
+  CONSTRAINT `fk_candidates_has_job_postings_job_postings1`
+    FOREIGN KEY (`job_id`)
+    REFERENCES `intervue_db`.`job_postings` (`job_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `intervue_db`.`interviewers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `intervue_db`.`interviewers` (
+  `interviewer_id` INT NOT NULL,
+  `first_name` VARCHAR(45) NULL DEFAULT NULL,
+  `last_name` VARCHAR(45) NULL DEFAULT NULL,
+  `email` VARCHAR(100) NULL DEFAULT NULL,
+  `phone_number` VARCHAR(15) NULL DEFAULT NULL,
+  `specialization` VARCHAR(45) NULL DEFAULT NULL,
+  `qualification` VARCHAR(45) NULL DEFAULT NULL,
+  `hourly_rate` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`interviewer_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `intervue_db`.`interviewer_payments`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `intervue_db`.`interviewer_payments` (
+  `payment_id` INT NOT NULL,
+  `amount` DECIMAL(10,0) NULL DEFAULT NULL,
+  `payment_status` VARCHAR(45) NULL DEFAULT NULL,
+  `payment_method` VARCHAR(45) NULL DEFAULT NULL,
+  `interviewer_id` INT NOT NULL,
+  PRIMARY KEY (`payment_id`),
+  INDEX `fk_interviewer_payments_interviewers1_idx` (`interviewer_id` ASC) VISIBLE,
+  CONSTRAINT `fk_interviewer_payments_interviewers1`
+    FOREIGN KEY (`interviewer_id`)
+    REFERENCES `intervue_db`.`interviewers` (`interviewer_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `intervue_db`.`interviews`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `intervue_db`.`interviews` (
+  `interview_id` INT NOT NULL,
+  `schedule_time` DATETIME NULL DEFAULT NULL,
+  `status` VARCHAR(45) NULL DEFAULT NULL,
+  `duration` INT NULL DEFAULT NULL,
+  `feedback` VARCHAR(100) NULL DEFAULT NULL,
+  `job_id` INT NOT NULL,
+  `candidate_id` INT NOT NULL,
+  `interviewer_id` INT NOT NULL,
+  `application_id` INT NOT NULL,
+  PRIMARY KEY (`interview_id`),
+  INDEX `fk_interviews_interviewers1_idx` (`interviewer_id` ASC) VISIBLE,
+  INDEX `fk_interviews_applications1_idx` (`application_id` ASC) VISIBLE,
+  CONSTRAINT `fk_interviews_applications1`
+    FOREIGN KEY (`application_id`)
+    REFERENCES `intervue_db`.`applications` (`application_id`),
+  CONSTRAINT `fk_interviews_interviewers1`
+    FOREIGN KEY (`interviewer_id`)
+    REFERENCES `intervue_db`.`interviewers` (`interviewer_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `intervue_db`.`skill_assessment_report`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `intervue_db`.`skill_assessment_report` (
+  `skill_code` INT NOT NULL,
+  `skill_desc` VARCHAR(100) NULL DEFAULT NULL,
+  `skill_level` VARCHAR(45) NULL DEFAULT NULL,
+  PRIMARY KEY (`skill_code`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `intervue_db`.`interviews_has_skill_assessment_report`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `intervue_db`.`interviews_has_skill_assessment_report` (
+  `interview_id` INT NOT NULL,
+  `skill_code` INT NOT NULL,
+  PRIMARY KEY (`interview_id`, `skill_code`),
+  INDEX `fk_interviews_has_skill_assessment_report_skill_assessment__idx` (`skill_code` ASC) VISIBLE,
+  INDEX `fk_interviews_has_skill_assessment_report_interviews1_idx` (`interview_id` ASC) VISIBLE,
+  CONSTRAINT `fk_interviews_has_skill_assessment_report_interviews1`
+    FOREIGN KEY (`interview_id`)
+    REFERENCES `intervue_db`.`interviews` (`interview_id`),
+  CONSTRAINT `fk_interviews_has_skill_assessment_report_skill_assessment_re1`
+    FOREIGN KEY (`skill_code`)
+    REFERENCES `intervue_db`.`skill_assessment_report` (`skill_code`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `intervue_db`.`subscriptions`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `intervue_db`.`subscriptions` (
+  `subscription_id` INT NOT NULL,
+  `plan_name` VARCHAR(45) NULL DEFAULT NULL,
+  `start_date` DATE NULL DEFAULT NULL,
+  `end_date` DATE NULL DEFAULT NULL,
+  `client_id` INT NOT NULL,
+  PRIMARY KEY (`subscription_id`),
+  INDEX `fk_subscriptions_client1_idx` (`client_id` ASC) VISIBLE,
+  CONSTRAINT `fk_subscriptions_client1`
+    FOREIGN KEY (`client_id`)
+    REFERENCES `intervue_db`.`client` (`client_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `intervue_db`.`payments`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `intervue_db`.`payments` (
+  `payment_id` INT NOT NULL,
+  `payment_status` VARCHAR(45) NULL DEFAULT NULL,
+  `payment_date` VARCHAR(45) NULL DEFAULT NULL,
+  `subscription_id` INT NOT NULL,
+  PRIMARY KEY (`payment_id`),
+  INDEX `fk_payments_subscriptions1_idx` (`subscription_id` ASC) VISIBLE,
+  CONSTRAINT `fk_payments_subscriptions1`
+    FOREIGN KEY (`subscription_id`)
+    REFERENCES `intervue_db`.`subscriptions` (`subscription_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `intervue_db`.`skills`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `intervue_db`.`skills` (
+  `skill_code` INT NOT NULL,
+  `skill_desc` VARCHAR(100) NULL DEFAULT NULL,
+  `skill_level` VARCHAR(45) NULL DEFAULT NULL,
+  PRIMARY KEY (`skill_code`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `intervue_db`.`technical_skills`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `intervue_db`.`technical_skills` (
+  `skill_code` INT NOT NULL,
+  `skill_desc` VARCHAR(100) NULL DEFAULT NULL,
+  `skill_level` VARCHAR(45) NULL DEFAULT NULL,
+  PRIMARY KEY (`skill_code`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `intervue_db`.`skills_job_postings`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `intervue_db`.`skills_job_postings` (
+  `job_id` INT NOT NULL,
+  `skill_code` INT NOT NULL,
+  PRIMARY KEY (`job_id`, `skill_code`),
+  INDEX `fk_job_postings_has_technical_skills_technical_skills1_idx` (`skill_code` ASC) VISIBLE,
+  INDEX `fk_job_postings_has_technical_skills_job_postings1_idx` (`job_id` ASC) VISIBLE,
+  CONSTRAINT `fk_job_postings_has_technical_skills_job_postings1`
+    FOREIGN KEY (`job_id`)
+    REFERENCES `intervue_db`.`job_postings` (`job_id`),
+  CONSTRAINT `fk_job_postings_has_technical_skills_technical_skills1`
+    FOREIGN KEY (`skill_code`)
+    REFERENCES `intervue_db`.`technical_skills` (`skill_code`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `intervue_db`.`candidates_skills`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `intervue_db`.`candidates_skills` (
+  `candidate_id` INT NOT NULL,
+  `skill_code` INT NOT NULL,
+  PRIMARY KEY (`candidate_id`, `skill_code`),
+  INDEX `fk_candidates_has_skills_skills1_idx` (`skill_code` ASC) VISIBLE,
+  INDEX `fk_candidates_has_skills_candidates1_idx` (`candidate_id` ASC) VISIBLE,
+  CONSTRAINT `fk_candidates_has_skills_candidates1`
+    FOREIGN KEY (`candidate_id`)
+    REFERENCES `intervue_db`.`candidates` (`candidate_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_candidates_has_skills_skills1`
+    FOREIGN KEY (`skill_code`)
+    REFERENCES `intervue_db`.`skills` (`skill_code`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+-- Insert values into candidates table
+
+INSERT INTO candidates (
+    candidate_id,
+    first_name,
+    last_name,
+    email,
+    phone_number,
+    education,
+    profile_status,
+    address,
+    region,
+    city,
+    zipcode
+) VALUES
+(1, 'John', 'Doe', 'john.doe@example.com', '1234567890', 'Masters in CS', 'Active', '123 Elm St', 'North', 'New York', '10001'),
+(2, 'Jane', 'Smith', 'jane.smith@example.com', '0987654321', 'Bachelors in IT', 'Inactive', '456 Pine Ave', 'South', 'San Francisco', '94102'),
+(3, 'Emma', 'Watson', 'emma.watson@example.com', '1122334455', 'PhD in Data Science', 'Active', '789 Maple St', 'West', 'Seattle', '98101'),
+(4, 'Michael', 'Green', 'michael.green@example.com', '1231231234', 'Bachelors in Analytics', 'Active', '357 Oak Rd', 'East', 'Boston', '02118'),
+(5, 'David', 'Lee', 'david.lee@example.com', '4445556666', 'Masters in AI', 'Active', '654 Cedar St', 'East', 'Chicago', '60601'),
+(6, 'Olivia', 'Brown', 'olivia.brown@example.com', '9998887777', 'Bachelors in Marketing', 'Inactive', '789 Spruce Ln', 'North', 'Austin', '73301'),
+(7, 'Chris', 'Wilson', 'chris.wilson@example.com', '2221114444', 'Bachelors in Design', 'Active', '159 Birch Ct', 'South', 'Miami', '33101'),
+(8, 'Sophia', 'Harris', 'sophia.harris@example.com', '1233214567', 'Masters in Business', 'Active', '951 Redwood Dr', 'West', 'Denver', '80203'),
+(9, 'Daniel', 'Adams', 'daniel.adams@example.com', '6543219876', 'PhD in Mathematics', 'Inactive', '852 Willow St', 'East', 'Dallas', '75001'),
+(10, 'Lily', 'Carter', 'lily.carter@example.com', '7891234560', 'Masters in Engineering', 'Active', '753 Aspen Ave', 'North', 'Phoenix', '85001');
+
+-- Insert values into client table
+INSERT INTO client (
+    client_id,
+    name,
+    email,
+    phone_number,
+    address,
+    region,
+    city,
+    zipcode
+) VALUES
+(1, 'Tech Solutions', 'info@techsolutions.com', '1234567890', '123 Innovation Dr', 'East', 'New York', '10001'),
+(2, 'Data insights Inc', 'contact@dataanalytics.com', '9876543210', '456 Data Rd', 'South', 'Austin', '73301'),
+(3, 'Visionary Tech', 'support@visionarytech.com', '1231231234', '789 Future St', 'West', 'Denver', '80203'),
+(4, 'NextGen Developers', 'developers@nextgen.com', '5556667777', '654 Modern Ave', 'East', 'Boston', '02118'),
+(5, 'Alpha Innovations', 'alpha@innovations.com', '9998887777', '321 Progress Ln', 'North', 'Seattle', '98101');
+
+-- Insert values into interviewers table
+INSERT INTO interviewers (
+    interviewer_id,
+    first_name,
+    last_name,
+    email,
+    phone_number,
+    specialization,
+    qualification,
+    hourly_rate
+) VALUES
+(1, 'Michael', 'Brown', 'michael.brown@example.com', '1212121212', 'Machine Learning', 'PhD', '75'),
+(2, 'Sophia', 'Johnson', 'sophia.johnson@example.com', '3434343434', 'Data Science', 'Masters', '60'),
+(3, 'Daniel', 'Green', 'daniel.green@example.com', '5656565656', 'Web Development', 'Bachelors', '55'),
+(4, 'Chris', 'Lee', 'chris.lee@example.com', '2323232323', 'Business Analysis', 'Masters', '65'),
+(5, 'Olivia', 'White', 'olivia.white@example.com', '1212323434', 'Artificial Intelligence', 'PhD', '80'),
+(6, 'Emma', 'Adams', 'emma.adams@example.com', '4545454545', 'Frontend Development', 'Bachelors', '50');
+
+
+-- Insert values into job_postings table
+INSERT INTO job_postings (job_id, job_name, job_desc, positions_vacant, client_satisfaction_rating, status, client_id)
+VALUES
+(1, 'Data Scientist', 'Analyze data trends', 2, 0, 'Open', 1),
+(2, 'Backend Engineer', 'Develop server-side logic', 3, 0, 'Open', 2),
+(3, 'UI Designer', 'Design user-friendly layouts', 1, 3, 'Closed', 3),
+(4, 'ML Engineer', 'Build machine learning models', 2, 0, 'Open', 4),
+(5, 'Full Stack Dev', 'Build end-to-end applications', 2, 0, 'Open', 5),
+(6, 'Data Analyst', 'Analyze data trends', 5, 0, 'open', 1);
+
+INSERT INTO applications (application_id, application_status, job_id, candidate_id)
+VALUES (6001, 'OFFER LETTER ISSUED', 1, 1),
+(6002, 'PENDING', 2, 2),
+(6003, 'OFFER ACCEPTED', 3, 3),
+(6004, 'PENDING', 4, 4),
+(6005, 'PENDING', 5, 5);
+
+INSERT INTO interviews (interview_id, candidate_id, status, feedback, duration, interviewer_id, job_id, application_id)
+VALUES
+  (1, 1, 'Completed', 'Excellent performance', 60, 1, 1, 6001),
+  (2, 2, 'Scheduled', NULL, 45, 3, 2, 6002),
+  (3, 3, 'Completed', 'Good skills, needs improvement', 50, 6, 3, 6003),
+  (4, 4, 'Scheduled', NULL, 30, 1, 4, 6004),
+  (5, 5, 'Pending', NULL, 40, 4, 5, 6005);
+  
+  select * from applications;
+
+--UPDATE interviews
+--JOIN applications ON interviews.job_id = applications.job_id
+--SET interviews.application_id = applications.application_id;
+
+INSERT INTO skills (skill_code, skill_desc, skill_level) VALUES
+(2011, 'Python', 'Beginner'),
+(2012, 'Python', 'Intermediate'),
+(2013, 'Python', 'Advanced'),
+(2021, 'SQL', 'Beginner'),
+(2022, 'SQL', 'Intermediate'),
+(2023, 'SQL', 'Advanced'),
+(2031, 'Data Analysis', 'Beginner'),
+(2032, 'Data Analysis', 'Intermediate'),
+(2033, 'Data Analysis', 'Advanced'),
+(2041, 'HTML', 'Beginner'),
+(2042, 'HTML', 'Intermediate'),
+(2043, 'HTML', 'Advanced'),
+(2051, 'CSS', 'Beginner'),
+(2052, 'CSS', 'Intermediate'),
+(2053, 'CSS', 'Advanced'),
+(2061, 'Machine Learning', 'Beginner'),
+(2062, 'Machine Learning', 'Intermediate'),
+(2063, 'Machine Learning', 'Advanced'),
+(2071, 'R programming', 'Beginner'),
+(2072, 'R programming', 'Intermediate'),
+(2073, 'R programming', 'Advanced'),
+(2081, 'PowerBI', 'Beginner'),
+(2082, 'PowerBI', 'Intermediate'),
+(2083, 'PowerBI', 'Advanced'),
+(2091, 'Tableau', 'Beginner'),
+(2092, 'Tableau', 'Intermediate'),
+(2093, 'Tableau', 'Advanced'),
+(2101, 'JavaScript', 'Beginner'),
+(2102, 'JavaScript', 'Intermediate'),
+(2103, 'JavaScript', 'Advanced');
+
+-- inserting values into candidate_skills tables
+INSERT INTO candidates_skills (candidate_id, skill_code)
+VALUES
+(1, 2013),
+(1, 2023),
+(1, 2033),
+(1, 2083),
+(2, 2013),
+(2, 2023),
+(3, 2043),
+(3, 2053),
+(3, 2103),
+(4, 2013),
+(4, 2023),
+(4, 2033),
+(4, 2083),
+(5, 2013),
+(5, 2023),
+(5,2043),
+(5, 2053),
+(5, 2103);
+
+INSERT INTO technical_skills (skill_code, skill_desc, skill_level)
+VALUES
+(2011, 'Python', 'Beginner'),
+(2012, 'Python', 'Intermediate'),
+(2013, 'Python', 'Advanced'),
+(2021, 'SQL', 'Beginner'),
+(2022, 'SQL', 'Intermediate'),
+(2023, 'SQL', 'Advanced'),
+(2031, 'Data Analysis', 'Beginner'),
+(2032, 'Data Analysis', 'Intermediate'),
+(2033, 'Data Analysis', 'Advanced'),
+(2041, 'HTML', 'Beginner'),
+(2042, 'HTML', 'Intermediate'),
+(2043, 'HTML', 'Advanced'),
+(2051, 'CSS', 'Beginner'),
+(2052, 'CSS', 'Intermediate'),
+(2053, 'CSS', 'Advanced'),
+(2061, 'Machine Learning', 'Beginner'),
+(2062, 'Machine Learning', 'Intermediate'),
+(2063, 'Machine Learning', 'Advanced'),
+(2071, 'R programming', 'Beginner'),
+(2072, 'R programming', 'Intermediate'),
+(2073, 'R programming', 'Advanced'),
+(2081, 'PowerBI', 'Beginner'),
+(2082, 'PowerBI', 'Intermediate'),
+(2083, 'PowerBI', 'Advanced'),
+(2091, 'Tableau', 'Beginner'),
+(2092, 'Tableau', 'Intermediate'),
+(2093, 'Tableau', 'Advanced'),
+(2101, 'JavaScript', 'Beginner'),
+(2102, 'JavaScript', 'Intermediate'),
+(2103, 'JavaScript', 'Advanced');
+
+INSERT INTO skills_job_postings (job_id, skill_code)
+VALUES 
+(1, 2013),
+(1, 2023),
+(1, 2033),
+(1, 2083),
+(2, 2013),
+(2, 2023),
+(3, 2043),
+(3, 2053),
+(3, 2103),
+(4, 2013),
+(4, 2023),
+(4, 2033),
+(4, 2083),
+(5, 2013),
+(5, 2023),
+(5,2043),
+(5, 2053),
+(5, 2103),
+(6, 2022),
+(6, 2033),
+(6, 2072),
+(6, 2092);
+
+INSERT INTO skill_assessment_report (skill_code, skill_desc, skill_level)
+VALUES
+(2011, 'Python', 'Beginner'),
+(2012, 'Python', 'Intermediate'),
+(2013, 'Python', 'Advanced'),
+(2021, 'SQL', 'Beginner'),
+(2022, 'SQL', 'Intermediate'),
+(2023, 'SQL', 'Advanced'),
+(2031, 'Data Analysis', 'Beginner'),
+(2032, 'Data Analysis', 'Intermediate'),
+(2033, 'Data Analysis', 'Advanced'),
+(2041, 'HTML', 'Beginner'),
+(2042, 'HTML', 'Intermediate'),
+(2043, 'HTML', 'Advanced'),
+(2051, 'CSS', 'Beginner'),
+(2052, 'CSS', 'Intermediate'),
+(2053, 'CSS', 'Advanced'),
+(2061, 'Machine Learning', 'Beginner'),
+(2062, 'Machine Learning', 'Intermediate'),
+(2063, 'Machine Learning', 'Advanced'),
+(2071, 'R programming', 'Beginner'),
+(2072, 'R programming', 'Intermediate'),
+(2073, 'R programming', 'Advanced'),
+(2081, 'PowerBI', 'Beginner'),
+(2082, 'PowerBI', 'Intermediate'),
+(2083, 'PowerBI', 'Advanced'),
+(2091, 'Tableau', 'Beginner'),
+(2092, 'Tableau', 'Intermediate'),
+(2093, 'Tableau', 'Advanced'),
+(2101, 'JavaScript', 'Beginner'),
+(2102, 'JavaScript', 'Intermediate'),
+(2103, 'JavaScript', 'Advanced');
+
+INSERT INTO interviews_has_skill_assessment_report (interview_id, skill_code)
+VALUES
+(1, 2012),
+(1, 2023),
+(1, 2031),
+(1, 2083),
+(2, 2013),
+(2, 2022),
+(3, 2043),
+(3, 2053),
+(3, 2103),
+(4, 2013),
+(4, 2023),
+(4, 2033),
+(4, 2083),
+(5, 2013),
+(5, 2023),
+(5, 2042),
+(5, 2053),
+(5, 2103);
+
+use intervue_db;
+
+-- skill assessed of candidates after the interviews
+create view assessed_skills as
+select a.application_id, a.candidate_id, sar.skill_code ,sar.skill_desc, sar.skill_level
+from applications a
+join interviews i on i.application_id = a.application_id
+join interviews_has_skill_assessment_report ihsar on i.interview_id = ihsar.interview_id
+join skill_assessment_report sar on ihsar.skill_code = sar.skill_code;
+
+-- skill required for the candidates for jobs
+create view required_skills as
+select a.application_id, a.candidate_id, ts.skill_code ,ts.skill_desc, ts.skill_level
+from applications a
+join job_postings jp on jp.job_id = a.job_id
+join skills_job_postings sjp on sjp.job_id = jp.job_id
+join technical_skills ts on ts.skill_code = sjp.skill_code;
+
+
+R CODE(R STUDIO) FOR Comparing skills required by job vs Skills assessed after interview and
+Creating recommendation list of applications to Client.
+
+library(RMySQL)
+library(dplyr)
+con = dbConnect(RMySQL::MySQL(),
+                dbname='intervue_db',
+                host='localhost',
+                port=3306,
+                user='root',
+                password='1998')
+dbListTables(con)
+
+### Loading Assessed_Skills
+myquery = "select * from assessed_skills"
+
+assessed_skills <- dbGetQuery(con,myquery)
+
+### Loading required skills
+myquery = " select * from required_skills"
+
+required_skills <- dbGetQuery(con, myquery)
+
+
+#required skill count
+
+required_skill_count<-required_skills%>%
+  count(application_id)
+print(required_skill_count)
+library(dplyr)
+
+# Join the datasets to find matches
+matched_skills <- required_skills %>%
+  inner_join(assessed_skills, by = c("application_id", "skill_code"))
+View(matched_skills)
+# Count the number of matches for each candidate
+match_counts <- matched_skills %>%
+  group_by(application_id) %>%
+  summarise(match_count = n(), .groups = "drop")
+
+# Print the resulting table
+print(match_counts)
+
+# Recommending the candidate based on matched skill count with job skill Required skill count
+
+# Filter rows where match_count equals required_skill_count$n
+result <- merge(required_skill_count, match_counts, by = "application_id")
+filtered_result <- result[result$n == result$match_count, "application_id"]
+
+# Print the application IDs that match the condition
+print("Candiadate applications moved to Client or Recommendation list")
+print(filtered_result)
