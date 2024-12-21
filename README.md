@@ -77,6 +77,8 @@ Highly motivated and results-driven Data Analyst with a passion for transforming
 
 **Data Reporting and Presentation:** Highly adept at delivering compelling data narratives through interactive dashboards and concise reports using Power BI.
 
-A fast learner and dedicated professional, I am committed to contributing to data-driven decision-making and eager to apply my skills to tackle challenging real-world business problems.# Screenshots
+A fast learner and dedicated professional, I am committed to contributing to data-driven decision-making and eager to apply my skills to tackle challenging real-world business problems.
+
+# Screenshots
 
 ![App Screenshot](https://github.com/Nareshkumarmallela/Database_management/blob/main/Intervue_database.png)
